@@ -7976,7 +7976,7 @@ hàng tồn kho, tăng dần của giá sản phẩm*/
 select * from products order by  quantityInStock desc , MSRP asc;
 /* o. Lấy ra thông tin về các sản phẩm và dòng sản phẩm (không sử dụng kết
 bảng) */
-select productName,productVendor, productDescription, productLine from products
+select productName,productVendor, productDescription, productLine from products;
 
 
 
