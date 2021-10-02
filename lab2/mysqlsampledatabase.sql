@@ -14,7 +14,9 @@ Version 2.0
 *********************************************************************
 */
 
-
+SET collation_connection = 'utf8_general_ci';
+ALTER DATABASE `classicmodels`CHARACTER SET utf8 COLLATE utf8_general_ci;
+ALTER TABLE `products` CONVERT TO CHARACTER SET utf8 COLLATE utf8_general_ci;
 /*!40101 SET NAMES utf8 */;
 
 /*!40101 SET SQL_MODE=''*/;
@@ -7930,55 +7932,48 @@ insert  into `products`(`productCode`,`productName`,`productLine`,`productScale`
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 
- /*a. Lấy ra thông tin của các khách hàng sống tại các thành phố Nantes và
-Lyon.*/
-select * from customers where (city='Nantes' or city='Lyon');
+-- Bài học hành sô 4 
+-- a. Lấy ra 20 ký tự đầu tiên của phần mô tả sản phẩm, đặt tên là ‘Tiêu đề sản phẩm’
+select substring(productDescription,1,20) as titleProducts from products;
 
-/* b. Tìm tất cả các văn phòng không nằm ở Mỹ và Pháp */
-select * from offices where country NOT IN ('USA','France');
+-- b. Lấy ra mô tả về các nhân viên theo định dạng ‘Fullname, jobTitle.’
+select concat(lastName, ' ',firstName,', ', jobTitle) as employeesDescription  from employees;
 
-/* c. Tìm tất cả các sản phẩm có giá nằm trong phạm vi 70 $ và 200 $ */
-select * from products where MSRP between 70 and 200;
+/* c. Liệt kê ra họ tên khách hàng và địa chỉ của khách hàng theo định dạng sau:
+“địa chỉ1 - thành phố *** state --- quốc gia”. */
+select * from customers;
+select concat(addressLine1,' -',' *** ',state,' --- ',country) as cutomersDescrtion from customers;
 
-/* d. Tìm tất cả các sản phẩm với giá mua nằm ngoài phạm vi 50$ và 150$ */
-select * from products where buyPrice between 50 and 150 ;
+-- d. Thay thế toàn bộ tên nhóm hàng ‘Cars’ thành ‘Xe hơi’.
+select replace(productLine,'Cars','Xe hơi') from products;
 
-/* e. Tìm các đơn hàng đã được chuyển trong khoảng thời gian từ ‘15/1/2003’
-đến ‘10/5/2003’ */
-SELECT * FROM Orders where shippedDate between '2003-1-15' and '2003-5-10';
+/* e. Hiện thị Full_name người quản lý của các nhân viên. Nếu không có thì xuất
+ra từ “No”. */
+select 
+if(jobTitle like '%Manager%',concat(lastName,' ',firstName),'No') as Managers
+ from employees;
 
-/* f. Tìm các đơn hàng đã được chuyển trước ngày ‘10/1/2003’ 1 tháng */
-select * from orders where shippedDate <= DATE_SUB('2003-1-10', interval -1 month);
 
-/* g. Tìm các đơn hàng đã được chuyển sau ngày ‘10/3/2003’ 15 ngày */
-select * from orders where shippedDate >= DATE_ADD('2003-3-10', INTERVAL 15 DAY);
+/* f. Hiện thị Full_name người nhân viên sale phụ trách của các khách hàng.
+Nếu không có thì xuất ra từ “Chưa có”. */
+select * from customers;
+select c.customerName, concat(contactLastName, contactFirstName) as fullNameEmployee
+from customers c , employees e 
+where c.salesRepEmployeeNumber = e.employeeNumber
+union 
+select customerName, ifnull(salesRepEmployeeNumber,'chua co')  
+from customers
+where salesRepEmployeeNumber is null;
 
-/* h. Tìm kiếm những nhân viên có tên không bắt đầu với ký tự 'c' */
- select * from employees where firstName not Like 'C%';
+-- select c.lastName, e.  from customers c , employees e
+ /* g. Sử dụng hàm IF thống kê có bao nhiêu khách hàng ở từng quốc gia riêng
+biệt */
+select count(*) from customers;
+select country, count(*)
+from customers
+group by country ;
  
- /* i. Tìm tất cả các khách hàng mà họ của các khách hàng này có chứa cụm 'er' */
- select * from customers where customerName like '%er%';
- 
-/* j. Lấy ra thông tin về các nhóm hàng hoá có chứa từ ‘CAR’ */
-select * from products where productLine like '%Car%';
-
-/* k. Tìm các sản phẩm mà mã có chứa chuỗi ‘_10’ */
-select * from products where productCode like '%_10%';
-
-/* l. Truy vấn 5 sản phẩm có số lượng trong kho là lớn nhất. */
-select * from products order by quantityInStock desc limit 5;
-
-/* m. Đưa ra danh sách các sản phẩm và thêm thuộc tính là tiền hàng tồn của sản
-phẩm.*/
- select *, (buyPrice * quantityInStock)as moneyInventory  from products;
-/* n. Lấy ra thông tin về tên các sản phẩm theo thứ tự giảm dần của số lượng
-hàng tồn kho, tăng dần của giá sản phẩm*/
-select * from products order by  quantityInStock desc , MSRP asc;
-/* o. Lấy ra thông tin về các sản phẩm và dòng sản phẩm (không sử dụng kết
-bảng) */
-select productName,productVendor, productDescription, productLine from products
-
-
-
-
+ /* h. Sử dụng hàm IF thống kê có bao nhiêu khách hàng không có địa chỉ số 2. */
+ select if(addressLine2 is null,count(customerNumber),null)
+ from customers
 
